@@ -18,7 +18,7 @@ func (sshCmder RedHatSSHCommander) SSHCommand(args string) (string, error) {
 		return "", err
 	}
 
-	log.Debugf("About to run SSH command:\n%s", args)
+	log.Infof("About to run SSH command:\n%s", args)
 
 	// redhat needs "-t" for tty allocation on ssh therefore we check for the
 	// external client and add as needed.
@@ -33,7 +33,7 @@ func (sshCmder RedHatSSHCommander) SSHCommand(args string) (string, error) {
 		output, err = c.OutputWithPty(args)
 	}
 
-	log.Debugf("SSH cmd err, output: %v: %s", err, output)
+	log.Infof("SSH cmd err, output: %v: %s", err, output)
 	if err != nil {
 		return "", fmt.Errorf(`RHEL ssh command error: command: %s err: %v output: %s`, args, err, output)
 	}
