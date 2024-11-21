@@ -32,8 +32,19 @@ func installDockerGeneric(p Provisioner, baseURL string) error {
 	// install docker - until cloudinit we use ubuntu everywhere so we
 	// just install it using the docker repos
 	log.Infof("Installing Docker from: %s", baseURL)
+	if output, err := p.SSHCommand("type docker"); err != nil {
+		return fmt.Errorf("Error checking docker installation: %s, %v", output, err)
+	}
+
 	if output, err := p.SSHCommand(fmt.Sprintf("if ! type docker; then curl -sSL %s | sh -; fi", baseURL)); err != nil {
-		return fmt.Errorf("Error installing Docker: %s, %v", output, err)
+		if strings.Contains(err.Error(), "255") {
+			log.Infof("retrying installing docker")
+			if output, err := p.SSHCommand(fmt.Sprintf("if ! type docker; then curl -sSL %s | sh -; fi", baseURL)); err != nil {
+				return fmt.Errorf("Error installing Docker: %s, %v", output, err)
+			}
+		} else {
+			return fmt.Errorf("Error installing Docker: %s, %v", output, err)
+		}
 	}
 
 	return nil
